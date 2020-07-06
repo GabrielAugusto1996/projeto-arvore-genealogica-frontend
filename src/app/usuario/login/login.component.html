@@ -1,1 +1,19 @@
-<p>login works!</p>
+<form>
+    <div class="container">
+        <div class="box">
+            <h3 class="titulo">Árvore Geneálogica</h3>
+            <div class="p-field">
+                <label for="firstname1">E-mail</label>
+                <br>
+                <input id="email" type="mail" class="input" [(ngModel)]="creds.email" name="email">
+            </div>
+            <div class="p-field">
+                <label for="lastname1">Senha</label>
+                <br>
+                <input id="senha" type="password" class="input" [(ngModel)]="creds.senha" name="senha">
+            </div>
+
+            <button type="button" id="entrar" (click)="entrar()">Entrar</button>
+        </div>
+    </div>
+</form>

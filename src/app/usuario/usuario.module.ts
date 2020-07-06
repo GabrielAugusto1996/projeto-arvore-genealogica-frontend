@@ -1,9 +1,10 @@
+import { LoginRoutingModule } from './login/login-routing.module';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './login/login.component';
 import { UsuarioService } from './usuario.service';
-
+import { BlockUIModule } from 'ng-block-ui';
 
 
 @NgModule({
@@ -12,7 +13,8 @@ import { UsuarioService } from './usuario.service';
   ],
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    LoginRoutingModule
   ],
   providers: [
     UsuarioService
