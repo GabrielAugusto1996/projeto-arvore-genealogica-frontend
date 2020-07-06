@@ -1,10 +1,10 @@
-import { CredencialDTO } from '../../../dto/credencial.model';
-import { Component, OnInit } from '@angular/core';
 import { BlockUI, NgBlockUI } from 'ng-block-ui';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/security/auth.service';
 import { StorageService } from 'src/app/services/security/storage.service';
 import { ToastrService } from 'ngx-toastr';
+import { CredencialDTO } from 'src/app/dto/credencial.model';
 
 @Component({
   selector: 'login',
