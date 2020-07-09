@@ -1,6 +1,10 @@
 import { RespostaRestricao } from './resposta/resposta.restricao.model';
-export interface Pergunta {
+
+export class Pergunta {
+    codigo?: number;
     descricao?: string;
     possuiRestricao?: boolean;
+    proximaPergunta?: number;
+    comando?: string;
     listRespostaRestricao?: RespostaRestricao[];
 }

@@ -28,7 +28,7 @@ import { PerguntaModule } from './pergunta/pergunta.module';
     FormsModule,
     BrowserAnimationsModule,
     PerguntaModule,
-    ArvoreGenealogicaModule,
+    ArvoreGenealogicaModule
   ],
   providers: [
     AuthService,

@@ -1,3 +1,4 @@
-export interface RespostaRestricao {
+export class RespostaRestricao {
     descricao: string;
+    proximaPergunta?: number;
 }
