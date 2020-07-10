@@ -14,16 +14,16 @@ import { IvyParser } from '@angular/compiler';
 })
 export class ArvoreGenealogicaComponent implements OnInit {
 
-  constructor(private perguntaService: PerguntaService) {}
+  constructor(private perguntaService: PerguntaService) { }
 
   listPerguntas: Pergunta[] = [];
 
   pergunta: Pergunta = {};
   arvoreGenealogica: ArvoreGenealogica = new ArvoreGenealogica();
-  membro: Membro = new Membro();
 
   numeroPergunta = 0;
   resposta = '';
+  ordem = 0;
 
   ngOnInit(): void {
     this.perguntaService.consultarPerguntas().subscribe(
@@ -35,47 +35,113 @@ export class ArvoreGenealogicaComponent implements OnInit {
   }
 
   proximaPergunta() {
-    let proximaPergunta: Pergunta;
 
-    if (this.resposta.length < 3) {
-      alert('Deverá ser preenchido pelo menos três caracteres.');
-      return;
-    }
-
-    if (this.pergunta.codigo === 3) {
-      this.membro.setNome(this.resposta);
-    }
-
-    if (this.pergunta.codigo === 5) {
-      this.membro.setConjugue(this.resposta);
-    }
-
-    if (this.pergunta.possuiRestricao) {
-      const restricao = this.pergunta.listRespostaRestricao
-        .find(restricaoFilter => restricaoFilter.descricao.toUpperCase() === this.resposta.toUpperCase());
-
-      if (restricao === null || restricao === undefined) {
-        alert('Não entendi sua resposta!');
+    if (this.pergunta.codigo === 2) {
+      if (this.resposta.length < 3) {
+        alert('Deverá ser preenchido pelo menos três caracteres.');
         return;
       } else {
-        proximaPergunta = this.listPerguntas.find(perguntaFilter => perguntaFilter.codigo === restricao.proximaPergunta);
+          this.arvoreGenealogica.nomeFamilia = this.resposta;
+
+          this.pergunta = this.listPerguntas.find(perguntaFilter => perguntaFilter.codigo === this.pergunta.proximaPergunta);
+          this.pergunta.descricao = `${this.pergunta.descricao} ${this.arvoreGenealogica.nomeFamilia} ?`;
+          return;
       }
-    } else {
-      proximaPergunta = this.listPerguntas.find(perguntaFilter => perguntaFilter.codigo === this.pergunta.proximaPergunta);
     }
 
-    if (ComandoConstants.CONCATENAR_FAMILIA === proximaPergunta.comando) {
-      this.arvoreGenealogica.nomeFamilia = this.resposta;
+    do {
 
-      proximaPergunta.descricao = `${proximaPergunta.descricao} ${this.arvoreGenealogica.nomeFamilia} ?`;
-    } else if (ComandoConstants.CONCATENAR_MEMBRO_INICIO === proximaPergunta.comando) {
-      proximaPergunta.descricao = `${this.membro.getNome()} ${proximaPergunta.descricao}`;
-    } else if (ComandoConstants.CONCATENAR_MEMBRO_FINAL === proximaPergunta.comando) {
-      proximaPergunta.descricao = `${proximaPergunta.descricao} ${this.membro.getNome()} ?`;
-    }
+      if (this.pergunta.codigo === 3) {
+        const primeiroMembro = new Membro(this.resposta, this.ordem);
+        this.arvoreGenealogica.adicionarNovoMembro(primeiroMembro);
 
-    this.pergunta = proximaPergunta;
-    this.resposta = '';
+        this.pergunta = this.listPerguntas.find(perguntaFilter => perguntaFilter.codigo === this.pergunta.proximaPergunta);
+        if (ComandoConstants.CONCATENAR_FAMILIA === this.pergunta.comando) {
+          this.arvoreGenealogica.nomeFamilia = this.resposta;
+
+          this.pergunta.descricao = `${this.pergunta.descricao} ${this.arvoreGenealogica.nomeFamilia} ?`;
+        } else if (ComandoConstants.CONCATENAR_MEMBRO_INICIO === this.pergunta.comando) {
+          this.pergunta.descricao = `${this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().getNome()} ${this.pergunta.descricao}`;
+        } else if (ComandoConstants.CONCATENAR_MEMBRO_FINAL === this.pergunta.comando) {
+          this.pergunta.descricao = `${this.pergunta.descricao} ${this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().getNome()} ?`;
+        } else if (ComandoConstants.ENCERRAR_FLUXO === this.pergunta.comando) {
+          this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().setFinalizado(true);
+        }
+        return;
+      }
+
+      if (this.pergunta.codigo === 5) {
+        this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().setConjugue(this.resposta);
+
+        this.pergunta = this.listPerguntas.find(perguntaFilter => perguntaFilter.codigo === this.pergunta.proximaPergunta);
+        if (ComandoConstants.CONCATENAR_FAMILIA === this.pergunta.comando) {
+          this.arvoreGenealogica.nomeFamilia = this.resposta;
+
+          this.pergunta.descricao = `${this.pergunta.descricao} ${this.arvoreGenealogica.nomeFamilia} ?`;
+        } else if (ComandoConstants.CONCATENAR_MEMBRO_INICIO === this.pergunta.comando) {
+          this.pergunta.descricao = `${this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().getNome()} ${this.pergunta.descricao}`;
+        } else if (ComandoConstants.CONCATENAR_MEMBRO_FINAL === this.pergunta.comando) {
+          this.pergunta.descricao = `${this.pergunta.descricao} ${this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().getNome()} ?`;
+        } else if (ComandoConstants.ENCERRAR_FLUXO === this.pergunta.comando) {
+          this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().setFinalizado(true);
+        }
+
+        return;
+      }
+
+      if (this.pergunta.codigo === 8) {
+        this.ordem++;
+        const novoFilho = new Membro(this.resposta, this.ordem);
+
+        this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().adicionarNovoFilho(novoFilho);
+
+        this.pergunta = this.listPerguntas.find(perguntaFilter => perguntaFilter.codigo === this.pergunta.proximaPergunta);
+        if (ComandoConstants.CONCATENAR_FAMILIA === this.pergunta.comando) {
+          this.arvoreGenealogica.nomeFamilia = this.resposta;
+  
+          this.pergunta.descricao = `${this.pergunta.descricao} ${this.arvoreGenealogica.nomeFamilia} ?`;
+        } else if (ComandoConstants.CONCATENAR_MEMBRO_INICIO === this.pergunta.comando) {
+          this.pergunta.descricao = `${this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().getNome()} ${this.pergunta.descricao}`;
+        } else if (ComandoConstants.CONCATENAR_MEMBRO_FINAL === this.pergunta.comando) {
+          this.pergunta.descricao = `${this.pergunta.descricao} ${this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().getNome()} ?`;
+        } else if (ComandoConstants.ENCERRAR_FLUXO === this.pergunta.comando) {
+          this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().setFinalizado(true);
+        }
+        return;
+      }
+
+      if (this.pergunta.possuiRestricao) {
+        const restricao = this.pergunta.listRespostaRestricao
+          .find(restricaoFilter => restricaoFilter.descricao.toUpperCase() === this.resposta.toUpperCase());
+
+        if (restricao === null || restricao === undefined) {
+          alert('Não entendi sua resposta!');
+          return;
+        } else {
+          this.pergunta = this.listPerguntas.find(perguntaFilter => perguntaFilter.codigo === restricao.proximaPergunta);
+          if (ComandoConstants.CONCATENAR_MEMBRO_INICIO === this.pergunta.comando) {
+            this.pergunta.descricao = `${this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().getNome()} ${this.pergunta.descricao}`;
+          } else if (ComandoConstants.CONCATENAR_MEMBRO_FINAL === this.pergunta.comando) {
+            this.pergunta.descricao = `${this.pergunta.descricao} ${this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().getNome()} ?`;
+          } else if (ComandoConstants.ENCERRAR_FLUXO === this.pergunta.comando) {
+            this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().setFinalizado(true);
+        }
+          return;
+        }
+      }
+
+      if (ComandoConstants.CONCATENAR_MEMBRO_INICIO === this.pergunta.comando) {
+        this.pergunta.descricao = `${this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().getNome()} ${this.pergunta.descricao}`;
+        return;
+      } else if (ComandoConstants.CONCATENAR_MEMBRO_FINAL === this.pergunta.comando) {
+        this.pergunta.descricao = `${this.pergunta.descricao} ${this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().getNome()} ?`;
+        return;
+      } else if (ComandoConstants.ENCERRAR_FLUXO === this.pergunta.comando) {
+        this.arvoreGenealogica.getPrimeiroMembroNaoFinalizado().setFinalizado(true);
+      }
+
+      this.resposta = '';
+    } while (this.arvoreGenealogica.validarExisteMembrosNaoFinalizados());
   }
 
 }

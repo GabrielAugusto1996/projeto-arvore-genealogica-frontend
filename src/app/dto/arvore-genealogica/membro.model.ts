@@ -2,9 +2,18 @@ export class Membro {
     private nome: string;
     private conjugue: string;
     private filhos: Membro[];
+    private ordem: number;
+    private finalizado: boolean;
+
+    constructor(nome: string, ordem: number) {
+        this.nome = nome;
+        this.ordem = ordem;
+        this.finalizado = false;
+        this.filhos = [];
+    }
 
 
-    public adicionarNovoMembro(filho: Membro) {
+    public adicionarNovoFilho(filho: Membro) {
         this.filhos.push(filho);
     }
 
@@ -22,6 +31,18 @@ export class Membro {
 
     public setConjugue(conjugue: string) {
         this.conjugue = conjugue;
+    }
+
+    public getFilhos() {
+        return this.filhos;
+    }
+
+    public getFinalizado(): boolean {
+        return this.finalizado;
+    }
+
+    public setFinalizado(finalizado: boolean) {
+        this.finalizado = finalizado;
     }
 
 }
